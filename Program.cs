@@ -9,7 +9,7 @@ do
 {
     input = Console.ReadLine().Trim();
     string[] commandText = input.Split(new char[] { ' ' });
-    //после / получить текст
+
     switch (commandText[0])
     {
         case "/start":
