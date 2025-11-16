@@ -74,7 +74,10 @@ do
                     if (isDelete)
                     {
                         if (deleteTaskPos < 0 || deleteTaskPos > tasks.Count() - 1)
+                        {
                             Console.WriteLine($"Номер задачи {deleteTaskPos} не найден в списке задач");
+                            continue;
+                        }
 
                         string deleteTaskVal = tasks[deleteTaskPos];
                         tasks.Remove(deleteTaskVal);
