@@ -1,20 +1,21 @@
 ﻿using DZ_Lesson_5;
-using DZ_Lesson_5.Exceptions;
+using DZ_Lesson_5.DAL;
+using DZ_Lesson_5.DAL.Exceptions;
 
 Console.WriteLine("Добро пожаловать! \r\nЗапущено базовое интерактивное меню будущего бота!");
-string menu = $"Введите команду: /start, /help, /info, /exit";
-menu += $"\r\nКоманды для работы с задачами: /addtask, /showtasks, /removetask";
+string menu = $"Доступные команды: /start, /exit";
+
 Console.WriteLine($"\r\n{menu}");
 
-string userName = "";
+ToDoUser currentUser = null;
 string input = "";
-List<string> tasks = new List<string>();
+List<ToDoItem> tasks = new List<ToDoItem>();
 
 try
 {
     Commands commands = new Commands();
 
-    Console.WriteLine("Введите максимально допустимое количество задач");
+    Console.WriteLine("\r\nВведите максимально допустимое количество задач");
     int maxCountTasks = (new ParseAndValidate()).ParseAndValidateInt(Console.ReadLine(), 1, 100);
     commands.MaxCountTasks = maxCountTasks;
 
@@ -26,33 +27,45 @@ try
     {
         try
         {
+            Console.WriteLine($"\r\nВведите команду");
             input = Console.ReadLine().Trim() ?? "";
             string[] commandText = input.Split(new char[] { ' ' });
             if (commandText.Length == 0) continue;
 
+            if (currentUser == null && commandText[0] != "/start")
+            {
+                Console.WriteLine("Сначала выполните команду /start");
+                continue;
+            }
+
             switch (commandText[0])
             {
                 case "/start":
-                    commands.CommandStart(menu);
-                    commands.UserName = userName;
+                    commands.CommandStart(menu, ref currentUser);
                     break;
                 case "/help":
-                    commands.CommandHelp(menu);
+                    commands.CommandHelp(menu, currentUser);
                     break;
                 case "/info":
-                    commands.CommandInfo(menu);
+                    commands.CommandInfo(menu, currentUser);
                     break;
                 case "/echo":
-                    commands.CommandEcho(menu, input, commandText);
+                    commands.CommandEcho(menu, input, commandText, currentUser);
                     break;
                 case "/addtask":
-                    commands.CommandAddtask(tasks);
+                    commands.CommandAddtask(tasks, currentUser);
                     break;
                 case "/showtasks":
-                    commands.CommandShowtasks(tasks);
+                    commands.CommandShowtasks(tasks, currentUser);
+                    break;
+                case "/showalltasks":
+                    commands.CommandShowAllTasks(tasks, currentUser);
                     break;
                 case "/removetask":
-                    commands.CommandRemovetask(tasks);
+                    commands.CommandRemovetask(tasks, currentUser);
+                    break;
+                case "/completetask":
+                    commands.CommandCompleteTask(tasks, commandText, currentUser);
                     break;
                 case "/exit":
                     break;
@@ -84,7 +97,7 @@ try
     }
     while (!input.Contains("/exit"));
 
-    Console.WriteLine($"\r\n{userName}, работа бота завершена. До свидания!");
+    Console.WriteLine($"\r\n{(currentUser?.TelegramUserName ?? "Пользователь")}, работа бота завершена. До свидания!");
 }
 catch (Exception ex)
 {
