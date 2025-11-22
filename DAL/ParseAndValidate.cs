@@ -1,4 +1,4 @@
-﻿namespace DZ_Lesson_5
+﻿namespace DZ_Lesson_5.DAL
 {
     public class ParseAndValidate
     {
@@ -13,8 +13,8 @@
 
                 if (!success)
                     throw new ArgumentException("Введенное значение не является числом");
-                
-                if (num < min || num > max)                
+
+                if (num < min || num > max)
                     throw new ArgumentException($"Введенное число должно быть больше {min}");
 
                 return num;
@@ -27,7 +27,7 @@
 
         public void ValidateString(string? str)
         {
-            if (string.IsNullOrEmpty(str.Trim()))
+            if (string.IsNullOrWhiteSpace(str))
                 throw new ArgumentException("Строка не может быть пустой или состоять только из пробелов");
         }
     }
