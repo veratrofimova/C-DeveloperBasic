@@ -1,4 +1,4 @@
-﻿namespace DZ_Lesson_5.DAL.Exceptions
+﻿namespace DZ_Lessons.DAL.Exceptions
 {
     public class DuplicateTaskException : Exception
     {

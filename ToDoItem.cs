@@ -1,6 +1,6 @@
-﻿using static DZ_Lesson_5.DAL.Enum.ToDoItemStateEnum;
+﻿using static DZ_Lessons.DAL.Enum.ToDoItemStateEnum;
 
-namespace DZ_Lesson_5
+namespace DZ_Lessons
 {
     public class ToDoItem
     {
