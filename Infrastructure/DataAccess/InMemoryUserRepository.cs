@@ -7,12 +7,14 @@ namespace DZ_Lessons.Infrastructure.DataAccess
     {
         private readonly List<ToDoUser> _users = new();
 
-        public void Add(ToDoUser user)
+        public async Task Add(ToDoUser user, CancellationToken token)
         {
             if (user == null)
                 throw new ArgumentNullException(nameof(user));
 
-            var existingUser = GetUserByTelegramUserId(user.TelegramUserId);
+            token.ThrowIfCancellationRequested();
+
+            var existingUser = await GetUserByTelegramUserId(user.TelegramUserId, token);
             if (existingUser != null)
             {
                 throw new InvalidOperationException($"Пользователь с Telegram ID {user.TelegramUserId} уже существует");
@@ -21,13 +23,17 @@ namespace DZ_Lessons.Infrastructure.DataAccess
             _users.Add(user);
         }
 
-        public ToDoUser? GetUser(Guid userId)
+        public async Task<ToDoUser?> GetUser(Guid userId, CancellationToken token)
         {
+            token.ThrowIfCancellationRequested();
+
             return _users.FirstOrDefault(t => t.UserId == userId);
         }
 
-        public ToDoUser? GetUserByTelegramUserId(long telegramUserId)
+        public async Task<ToDoUser?> GetUserByTelegramUserId(long telegramUserId, CancellationToken token)
         {
+            token.ThrowIfCancellationRequested();
+
             return _users.FirstOrDefault(t => t.TelegramUserId == telegramUserId);
         }
     }

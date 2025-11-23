@@ -11,9 +11,10 @@ namespace DZ_Lessons.Core.Services
             _toDoService = toDoService ?? throw new ArgumentNullException(nameof(toDoService));
         }
 
-        public (int total, int completed, int active, DateTime generatedAt) GetUserStats(Guid userId)
+        public async Task<(int total, int completed, int active, DateTime generatedAt)> GetUserStats(Guid userId, CancellationToken token)
         {
-            var tasks = _toDoService.GetAllByUserId(userId);
+            token.ThrowIfCancellationRequested();
+            var tasks = await _toDoService.GetAllByUserId(userId);
 
             var total = tasks.Count();
             var completed = tasks.Count(t => t.State == Enum.ToDoItemStateEnum.ToDoItemState.Completed);

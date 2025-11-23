@@ -13,7 +13,7 @@ try
 
     var userService = new UserService(userRepository);
     var toDoService = new ToDoService(toDoRepository);
-    var toDoReportService = new ToDoReportService(toDoService); 
+    var toDoReportService = new ToDoReportService(toDoService);
 
     Console.WriteLine("\r\nВведите максимально допустимое количество задач");
     int maxCountTasks = (new ParseAndValidate()).ParseAndValidateInt(Console.ReadLine(), 1, 100);
@@ -23,10 +23,32 @@ try
     int maxLengthTasks = (new ParseAndValidate()).ParseAndValidateInt(Console.ReadLine(), 1, 100);
     toDoService.MaxLengthTasks = maxLengthTasks;
 
+    CancellationTokenSource tokenSource = new CancellationTokenSource();
     var botClient = new ConsoleBotClient();
-    var updateHandler = new UpdateHandler(userService, toDoService, toDoReportService);
+    var updateHandler = new UpdateHandler(userService, toDoService, toDoReportService, tokenSource.Token);
 
-    botClient.StartReceiving(updateHandler);
+    MessageEventHandler startEventHandler = (message) =>
+    {
+        Console.WriteLine($"Началась обработка сообщения '{message}'");
+    };
+
+    MessageEventHandler completedEventHandler = (message) =>
+    {
+        Console.WriteLine($"Закончилась обработка сообщения '{message}'");
+    };
+
+    try
+    {
+        updateHandler.OnHandleUpdateStarted += startEventHandler;
+        updateHandler.OnHandleUpdateCompleted += completedEventHandler;
+
+        botClient.StartReceiving(updateHandler, tokenSource.Token);
+    }
+    finally
+    {
+        updateHandler.OnHandleUpdateStarted -= startEventHandler;
+        updateHandler.OnHandleUpdateCompleted -= completedEventHandler;
+    }
 }
 catch (Exception ex)
 {

@@ -4,7 +4,7 @@ namespace DZ_Lessons.Core.Services
 {
     public interface IUserService
     {
-        ToDoUser RegisterUser(long telegramUserId, string telegramUserName);
-        ToDoUser? GetUser(long telegramUserId);
+        Task<ToDoUser> RegisterUser(long telegramUserId, string telegramUserName, CancellationToken _token = default);
+        Task<ToDoUser?> GetUser(long telegramUserId, CancellationToken _token = default);
     }
 }
