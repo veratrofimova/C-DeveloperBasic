@@ -1,20 +1,27 @@
-﻿using DZ_Lessons.Infrastracture.Interface;
+﻿using DZ_Lessons.Core.DataAccess;
+using DZ_Lessons.Core.Entities;
+using DZ_Lessons.Core.Services;
 using Otus.ToDoList.ConsoleBot;
 using Otus.ToDoList.ConsoleBot.Types;
-using static DZ_Lessons.DAL.Enum.ToDoItemStateEnum;
+using static DZ_Lessons.Core.Enum.ToDoItemStateEnum;
 
-namespace DZ_Lessons.Infrastracture
+namespace DZ_Lessons.TelegramBot
 {
-    public class UpdateHandler: IUpdateHandler
+    public class UpdateHandler : IUpdateHandler
     {
         private readonly IUserService _userService;
         private readonly IToDoService _toDoService;
+        private readonly IToDoReportService _toReportService;
         private string _menu;
 
-        public UpdateHandler(IUserService userService, IToDoService toDoService)
+        public UpdateHandler(
+            IUserService userService, 
+            IToDoService toDoService, 
+            IToDoReportService toReportService)
         {
             _userService = userService;
             _toDoService = toDoService;
+            _toReportService = toReportService;
             InitializeMenu();
         }
 
@@ -25,9 +32,11 @@ namespace DZ_Lessons.Infrastracture
                 + $"\r\n/start - начать работу с ботом"
                 + $"\r\n/help - показать справку"
                 + $"\r\n/info - информация о программе"
-                + $"\r\n/addtask [текст] - добавить новую задачу"
+                + $"\r\n/addtask [описание] - добавить новую задачу"
                 + $"\r\n/showtasks - показать активные задачи"
                 + $"\r\n/showalltasks - показать все задачи (активные и завершенные)"
+                + $"\r\n/report - статистика по задачам"
+                + $"\r\n/find [имя] - поиск задач"
                 + $"\r\n/removetask [номер] - удалить задачу по номеру"
                 + $"\r\n/completetask [ID] - завершить задачу по ID"
                 + $"\r\n/exit - выйти из программы";
@@ -76,6 +85,12 @@ namespace DZ_Lessons.Infrastracture
                         break;
                     case "/completetask":
                         HandleCompleteTaskCommand(botClient, update, commandText, currentUser);
+                        break;
+                    case "/report":
+                        HandleReportTaskCommand(botClient, update, commandText, currentUser);
+                        break;
+                    case "/find":
+                        HandleFindTaskCommand(botClient, update, commandText, currentUser);
                         break;
                     case "/exit":
                         break;
@@ -229,6 +244,44 @@ namespace DZ_Lessons.Infrastracture
 
             _toDoService.MarkCompleted(taskId);
             botClient.SendMessage(update.Message.Chat, $"Задача '{task.Name}' завершена");
+        }
+
+        private void HandleReportTaskCommand(ITelegramBotClient botClient, Update update, string[] commandText, ToDoUser currentUser)
+        {
+            var stats = _toReportService.GetUserStats(currentUser.UserId);
+
+            var statistics = $"Статистика по задачам на {stats.generatedAt}. " +
+                $"Всего: {stats.total}; Завершенных: {stats.completed}; Активных: {stats.active}";
+
+            botClient.SendMessage(update.Message.Chat, statistics);
+        }
+
+        private void HandleFindTaskCommand(ITelegramBotClient botClient, Update update, string[] commandText, ToDoUser currentUser)
+        {
+            if (commandText.Length < 2)
+            {
+                botClient.SendMessage(update.Message.Chat, "Не указано условие поиска. Повторите команду и добавьте условие поиска");
+                return;
+            }
+
+            string findText = string.Join(" ", commandText.Skip(1));
+
+            var tasks = _toDoService.Find(currentUser, findText);
+
+            if (tasks.Count == 0)
+            {
+                botClient.SendMessage(update.Message.Chat, "Задачи не найдены. Измените поиск");
+                return;
+            }
+
+            var tasksList = $"Задачи, которые начинаются на \"{findText}\":\r\n";
+            for (int i = 0; i < tasks.Count; i++)
+            {
+                var task = tasks[i];
+                tasksList += $"{i}. {task.Name} - {task.CreatedAt:dd.MM.yyyy HH:mm:ss} - {task.Id}\r\n";
+            }
+
+            botClient.SendMessage(update.Message.Chat, tasksList);
         }
     }
 }

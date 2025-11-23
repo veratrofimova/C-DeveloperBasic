@@ -1,13 +1,19 @@
-﻿using DZ_Lessons.DAL;
-using DZ_Lessons.Infrastracture;
+﻿using DZ_Lessons.Core.Services;
+using DZ_Lessons.DAL;
+using DZ_Lessons.Infrastructure.DataAccess;
+using DZ_Lessons.TelegramBot;
 using Otus.ToDoList.ConsoleBot;
 
 Console.WriteLine("Добро пожаловать! \r\nЗапущено базовое интерактивное меню будущего бота!");
 
 try
 {
-    var userService = new UserService();
-    var toDoService = new ToDoService();
+    var userRepository = new InMemoryUserRepository();
+    var toDoRepository = new InMemoryToDoRepository();
+
+    var userService = new UserService(userRepository);
+    var toDoService = new ToDoService(toDoRepository);
+    var toDoReportService = new ToDoReportService(toDoService); 
 
     Console.WriteLine("\r\nВведите максимально допустимое количество задач");
     int maxCountTasks = (new ParseAndValidate()).ParseAndValidateInt(Console.ReadLine(), 1, 100);
@@ -18,7 +24,7 @@ try
     toDoService.MaxLengthTasks = maxLengthTasks;
 
     var botClient = new ConsoleBotClient();
-    var updateHandler = new UpdateHandler(userService, toDoService);
+    var updateHandler = new UpdateHandler(userService, toDoService, toDoReportService);
 
     botClient.StartReceiving(updateHandler);
 }

@@ -1,4 +1,6 @@
-﻿namespace DZ_Lessons.Infrastracture.Interface
+﻿using DZ_Lessons.Core.Entities;
+
+namespace DZ_Lessons.Core.Services
 {
     public interface IUserService
     {

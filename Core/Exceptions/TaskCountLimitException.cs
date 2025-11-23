@@ -1,4 +1,4 @@
-﻿namespace DZ_Lessons.DAL.Exceptions
+﻿namespace DZ_Lessons.Core.Exceptions
 {
     public class TaskCountLimitException : Exception
     {

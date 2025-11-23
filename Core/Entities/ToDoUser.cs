@@ -1,4 +1,4 @@
-﻿namespace DZ_Lessons
+﻿namespace DZ_Lessons.Core.Entities
 {
     public class ToDoUser
     {
