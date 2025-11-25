@@ -1,4 +1,4 @@
-﻿namespace DZ_Lesson_5.DAL.Enum
+﻿namespace DZ_Lessons.DAL.Enum
 {
     public class ToDoItemStateEnum
     {    

@@ -1,4 +1,4 @@
-﻿namespace DZ_Lesson_5.DAL
+﻿namespace DZ_Lessons.DAL
 {
     public class ParseAndValidate
     {
