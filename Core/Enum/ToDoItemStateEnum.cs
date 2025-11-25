@@ -1,7 +1,7 @@
-﻿namespace DZ_Lessons.DAL.Enum
+﻿namespace DZ_Lessons.Core.Enum
 {
     public class ToDoItemStateEnum
-    {    
+    {
         /// <summary>
         /// Состояния задачи
         /// </summary>
