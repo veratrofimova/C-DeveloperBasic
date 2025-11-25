@@ -12,22 +12,27 @@ namespace DZ_Lessons.Core.Services
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
 
-        public ToDoUser RegisterUser(long telegramUserId, string telegramUserName)
+        public async Task<ToDoUser> RegisterUser(long telegramUserId, string telegramUserName, CancellationToken token)
         {
-            var existingUser = _userRepository.GetUserByTelegramUserId(telegramUserId);
+            var existingUser = await _userRepository.GetUserByTelegramUserId(telegramUserId);
             if (existingUser != null)
             {
                 return existingUser;
             }
 
+            token.ThrowIfCancellationRequested();
+
             var user = new ToDoUser(telegramUserId, telegramUserName);
-            _userRepository.Add(user);
+            await _userRepository.Add(user);
+
             return user;
         }
 
-        public ToDoUser? GetUser(long telegramUserId)
+        public async Task<ToDoUser?> GetUser(long telegramUserId, CancellationToken token)
         {
-            return _userRepository.GetUserByTelegramUserId(telegramUserId);
+            token.ThrowIfCancellationRequested();
+
+            return await _userRepository.GetUserByTelegramUserId(telegramUserId);
         }
     }
 }

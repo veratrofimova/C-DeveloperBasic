@@ -8,15 +8,19 @@ namespace DZ_Lessons.Infrastructure.DataAccess
     {
         private readonly List<ToDoItem> _tasks = new();
 
-        public IReadOnlyList<ToDoItem> GetAllByUserId(Guid userId)
+        public async Task<IReadOnlyList<ToDoItem>> GetAllByUserId(Guid userId, CancellationToken token)
         {
+            token.ThrowIfCancellationRequested();
+
             return _tasks
                 .Where(t => t.User.UserId == userId)
                 .ToList();
         }
 
-        public IReadOnlyList<ToDoItem> GetActiveByUserId(Guid userId)
+        public async Task<IReadOnlyList<ToDoItem>> GetActiveByUserId(Guid userId, CancellationToken token)
         {
+            token.ThrowIfCancellationRequested();
+
             return _tasks
                 .Where(t =>
                     t.User.UserId == userId &&
@@ -24,19 +28,25 @@ namespace DZ_Lessons.Infrastructure.DataAccess
                 .ToList();
         }
 
-        public ToDoItem? Get(Guid id)
+        public async Task<ToDoItem?> Get(Guid id, CancellationToken token)
         {
+            token.ThrowIfCancellationRequested();
+
             return _tasks.FirstOrDefault(t => t.Id == id);
         }
 
-        public void Add(ToDoItem item)
+        public async Task Add(ToDoItem item, CancellationToken token)
         {
+            token.ThrowIfCancellationRequested();
+
             _tasks.Add(item);
         }
 
-        public void Update(ToDoItem item)
+        public async Task Update(ToDoItem item, CancellationToken token)
         {
-            var existingItem = Get(item.Id);
+            token.ThrowIfCancellationRequested();
+
+            var existingItem = await Get(item.Id, token);
             if (existingItem != null)
             {
                 _tasks.Remove(existingItem);
@@ -44,32 +54,40 @@ namespace DZ_Lessons.Infrastructure.DataAccess
             }
         }
 
-        public void Delete(Guid id)
+        public async Task Delete(Guid id, CancellationToken token)
         {
-            var item = Get(id);
+            token.ThrowIfCancellationRequested();
+
+            var item = await Get(id, token);
             if (item != null)
             {
                 _tasks.Remove(item);
             }
         }
 
-        public bool ExistsByName(Guid userId, string name)
+        public async Task<bool> ExistsByName(Guid userId, string name, CancellationToken token)
         {
+            token.ThrowIfCancellationRequested();
+
             return _tasks.Any(t =>
                 t.User.UserId == userId &&
                 t.Name == name &&
                 t.State == ToDoItemState.Active);
         }
 
-        public int CountActive(Guid userId)
+        public async Task<int> CountActive(Guid userId, CancellationToken token)
         {
+            token.ThrowIfCancellationRequested();
+
             return _tasks.Count(t =>
                 t.User.UserId == userId &&
                 t.State == ToDoItemState.Active);
         }
 
-        public IReadOnlyList<ToDoItem> Find(Guid userId, Func<ToDoItem, bool> predicate)
+        public async Task<IReadOnlyList<ToDoItem>> Find(Guid userId, Func<ToDoItem, bool> predicate, CancellationToken token)
         {
+            token.ThrowIfCancellationRequested();
+
             return _tasks
                 .Where(t => t.User.UserId == userId && predicate(t))
                 .ToList()

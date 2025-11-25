@@ -22,7 +22,7 @@ namespace DZ_Lessons.Core.Entities
         }
 
         public void MarkAsCompleted()
-        {
+        {            
             State = ToDoItemState.Completed;
             StateChangedAt = DateTime.UtcNow;
         }
